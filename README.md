@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173.
+Open <http://localhost:5173>.
 
 It runs out of the box: it points at `http://localhost:8000/api`, and if no backend is
 reachable it continues in preview mode so you can still click through every screen.
@@ -31,14 +31,14 @@ Requests go to `${VITE_API_BASE_URL}/<endpoint>`. Edit `.env`:
 | `http://localhost:8000/api` (default) | POSTs to your backend |
 | *(empty)* | Preview mode — no network calls |
 
-`.env` is committed with the default. Use `.env.local` for personal overrides.
-Restart the dev server after changing `.env`.
+`.env` is committed with the default; `.env.example` mirrors it as a template. Use
+`.env.local` for personal overrides. Restart the dev server after changing `.env`.
 
 ## Scripts
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Dev server with hot reload (http://localhost:5173) |
+| `npm run dev` | Dev server with hot reload (<http://localhost:5173>) |
 | `npm run build` | Production build into `dist/` |
 | `npm run preview` | Serve the built `dist/` locally |
 
@@ -65,7 +65,9 @@ src/
   data/           # checklist items, employment types
   steps/          # Details, Checklist, Review, Report
   App.jsx         # wizard state, navigation, validation, POST calls
+  main.jsx        # React entry point
   styles.css      # design system
+  utils.js        # small helpers (uid, className)
 ```
 
 State lives in `App.jsx`; there is no router or state library.
