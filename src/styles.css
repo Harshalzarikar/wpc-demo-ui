@@ -1127,6 +1127,10 @@ textarea {
   border-left-color: var(--danger);
 }
 
+.toast--warning {
+  border-left-color: var(--warning);
+}
+
 .toast--info {
   border-left-color: var(--accent);
 }
@@ -1150,6 +1154,10 @@ textarea {
 
 .toast--error .toast__icon {
   background: var(--danger);
+}
+
+.toast--warning .toast__icon {
+  background: var(--warning);
 }
 
 .toast__body {

@@ -11,11 +11,21 @@ export function apiBaseUrl() {
 async function request(path, { method = 'POST', body } = {}) {
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers: isFormData ? undefined : { 'Content-Type': 'application/json' },
-    body: isFormData ? body : JSON.stringify(body ?? {}),
-  })
+  let response
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers: isFormData ? undefined : { 'Content-Type': 'application/json' },
+      body: isFormData ? body : JSON.stringify(body ?? {}),
+    })
+  } catch (cause) {
+    // fetch only rejects on network-level failures (server down, DNS, CORS),
+    // never on HTTP error statuses — so this means "backend unreachable".
+    const error = new Error(`Could not reach ${API_BASE}${path}`)
+    error.isNetworkError = true
+    error.cause = cause
+    throw error
+  }
 
   const raw = await response.text()
   let data = null

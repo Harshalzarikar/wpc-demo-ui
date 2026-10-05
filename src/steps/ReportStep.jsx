@@ -1,4 +1,4 @@
-import { apiBaseUrl, apiConfigured } from '../api/client.js'
+import { apiBaseUrl } from '../api/client.js'
 import { CHECKLIST_ITEMS } from '../data/checklist.js'
 
 const COLUMNS = ['available', 'missing', 'na']
@@ -64,9 +64,9 @@ export default function ReportStep({ result, checklist, onBack, onNew }) {
         </div>
 
         <p className="field__note" style={{ marginTop: 14 }}>
-          {apiConfigured
-            ? `Report synced with ${apiBaseUrl()}.`
-            : 'Local preview mode — no backend configured.'}
+          {result.status === 'preview'
+            ? 'Generated locally — the backend was not reached, so nothing was saved.'
+            : `Report synced with ${apiBaseUrl()}.`}
         </p>
       </section>
 

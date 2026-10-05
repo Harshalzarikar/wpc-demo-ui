@@ -9,7 +9,7 @@ import ReviewStep from './steps/ReviewStep.jsx'
 import ReportStep from './steps/ReportStep.jsx'
 import { defaultChecklist } from './data/checklist.js'
 import { employmentTypeById } from './data/employees.js'
-import { apiBaseUrl, apiConfigured, submitDetails, submitVerification } from './api/client.js'
+import { apiConfigured, submitDetails, submitVerification } from './api/client.js'
 import { uid } from './utils.js'
 
 const STEPS = [
@@ -147,50 +147,56 @@ export default function App() {
       if (apiConfigured) {
         const response = await submitDetails(buildDetailsFormData())
         setAuditId(response?.id ?? response?.auditId ?? null)
+        notify('success', 'Documents submitted', 'AI extraction complete — review the checklist.')
       } else {
         setAuditId(`local-${uid()}`)
+        notify('success', 'Saved locally', 'No API base configured — running in preview mode.')
       }
-      notify(
-        'success',
-        'Documents submitted',
-        apiConfigured
-          ? 'AI extraction complete — review the checklist.'
-          : 'Saved locally (no API base configured).',
-      )
       setErrors({})
       goTo('checklist')
     } catch (error) {
-      notify('error', 'Submission failed', `${error.message} — ${apiBaseUrl()}`)
+      if (error.isNetworkError) {
+        setAuditId(`local-${uid()}`)
+        setErrors({})
+        notify(
+          'warning',
+          'Backend unreachable — continuing in preview mode',
+          `${error.message}. The form was not saved.`,
+        )
+        goTo('checklist')
+      } else {
+        notify('error', 'Submission failed', error.message)
+      }
     } finally {
       setSubmitting(false)
     }
   }
 
   async function handleVerification() {
+    const payload = {
+      auditId,
+      company: {
+        name: company.name,
+        rtiDocument: company.rtiFile?.name ?? null,
+        bankStatements: company.bankStatements.map((file) => file.name),
+      },
+      employees: employees.map((emp) => ({
+        id: emp.id,
+        fullName: emp.fullName,
+        designation: emp.designation,
+        employmentType: emp.employmentType,
+        documents: Object.entries(emp.files).map(([key, files]) => ({
+          key,
+          files: (files || []).map((file) => file.name),
+        })),
+      })),
+      checklist,
+      overallObservation: observation,
+      recommendationRemarks: recommendation,
+    }
+
     setSubmitting(true)
     try {
-      const payload = {
-        auditId,
-        company: {
-          name: company.name,
-          rtiDocument: company.rtiFile?.name ?? null,
-          bankStatements: company.bankStatements.map((file) => file.name),
-        },
-        employees: employees.map((emp) => ({
-          id: emp.id,
-          fullName: emp.fullName,
-          designation: emp.designation,
-          employmentType: emp.employmentType,
-          documents: Object.entries(emp.files).map(([key, files]) => ({
-            key,
-            files: (files || []).map((file) => file.name),
-          })),
-        })),
-        checklist,
-        overallObservation: observation,
-        recommendationRemarks: recommendation,
-      }
-
       let response = null
       if (apiConfigured) {
         response = await submitVerification(payload)
@@ -199,13 +205,28 @@ export default function App() {
       setResult({
         ...payload,
         id: response?.id ?? auditId,
-        status: response?.status ?? 'submitted',
+        status: response?.status ?? (apiConfigured ? 'submitted' : 'preview'),
         verifiedAt: new Date().toISOString(),
       })
       notify('success', 'Verification initiated', 'Your audit has been submitted for verification.')
       goTo('report')
     } catch (error) {
-      notify('error', 'Verification failed', `${error.message} — ${apiBaseUrl()}`)
+      if (error.isNetworkError) {
+        setResult({
+          ...payload,
+          id: auditId ?? `local-${uid()}`,
+          status: 'preview',
+          verifiedAt: new Date().toISOString(),
+        })
+        notify(
+          'warning',
+          'Backend unreachable — report generated locally',
+          `${error.message}. Nothing was submitted.`,
+        )
+        goTo('report')
+      } else {
+        notify('error', 'Verification failed', error.message)
+      }
     } finally {
       setSubmitting(false)
     }

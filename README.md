@@ -48,6 +48,10 @@ VITE_API_BASE_URL=
 Now every step works offline (submits advance without calling the server, and the Report
 screen shows a local reference id). Handy for design review and demos.
 
+You don't even have to switch modes by hand: **if the configured backend can't be reached,
+the app shows a warning and continues in preview mode automatically.** A real server error
+(4xx/5xx) still blocks the step and shows an error toast instead.
+
 ---
 
 ## Configuration
@@ -165,10 +169,14 @@ npm install --include=dev
 **Port 5173 already in use**
 Stop the other process, or run on another port: `npm run dev -- --port 5174`.
 
-**Submitting shows a red toast and the step doesn't advance**
-The app couldn't reach the backend. Check that `VITE_API_BASE_URL` in `.env` points at a
-running server (the toast includes the URL it tried), or set it empty to use local preview
-mode. Restart `npm run dev` after changing `.env` — env changes are not hot-reloaded.
+**A red error toast appears and the step doesn't advance**
+The backend responded with an error (4xx/5xx). The toast shows the message it returned —
+check the request and the URL it was sent to.
+
+**A warning toast says "Backend unreachable" and the step still advances**
+Nothing was saved — the UI fell back to preview mode because it couldn't reach
+`VITE_API_BASE_URL`. Start your backend (or fix the URL in `.env`) and submit again.
+Restart `npm run dev` after changing `.env` — env changes are not hot-reloaded.
 
 **Blank page**
 Open the browser console — a runtime error will be logged there. Also make sure

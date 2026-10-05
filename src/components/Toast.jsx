@@ -13,7 +13,7 @@ export default function Toast({ toast, onClose }) {
   return (
     <div className={cx('toast', `toast--${toast.type}`)} role="status">
       <span className="toast__icon" aria-hidden="true">
-        {toast.type === 'error' ? '!' : toast.type === 'info' ? 'i' : '✓'}
+        {toast.type === 'success' ? '✓' : toast.type === 'info' ? 'i' : '!'}
       </span>
       <div className="toast__body">
         <p className="toast__title">{toast.title}</p>
