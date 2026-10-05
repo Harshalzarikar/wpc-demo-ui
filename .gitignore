@@ -9,9 +9,9 @@ WPC AI Post .pdf
 # Tooling / editor config
 .commandcode/
 
-.env
-.env.*
-!.env.example
+# .env is committed (default config). Personal overrides stay local.
+.env.local
+.env.*.local
 .DS_Store
 npm-debug.log*
 yarn-debug.log*

@@ -23,14 +23,11 @@ The UI follows a four-step wizard: **Details → Checklist → Review → Report
 # 1. Install dependencies
 npm install
 
-# 2. Create your environment file
-cp .env.example .env          # macOS / Linux
-copy .env.example .env        # Windows (cmd / PowerShell)
+# 2. Point .env at your backend
+#    It ships with VITE_API_BASE_URL=http://localhost:8000/api — edit it if
+#    your backend runs elsewhere (or leave it, if it doesn't)
 
-# 3. Edit .env and point it at your backend
-#    VITE_API_BASE_URL=http://localhost:8000/api
-
-# 4. Start the dev server (opens http://localhost:5173 automatically)
+# 3. Start the dev server (opens http://localhost:5173 automatically)
 npm run dev
 ```
 
@@ -63,7 +60,8 @@ root (see `.env.example`):
 | `http://localhost:8000/api` (default) | POSTs to your backend |
 | *(empty)* | Local preview mode — no network calls |
 
-`.env` is git-ignored; `.env.example` is the committed template.
+`.env` is committed with the default URL so the project runs with no setup. Use `.env.local`
+(git-ignored) for personal overrides — it takes precedence over `.env`.
 
 ---
 
